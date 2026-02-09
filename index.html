@@ -1,0 +1,3261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlayMaker Tracker</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f5f5f5;
+        min-height: 100vh;
+        padding: 10px;
+      }
+
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: white;
+        color: #333;
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .header h1 {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      /* Section 1: Game Info */
+      .section-1 {
+        padding: 10px;
+        background: #fafafa;
+        border-bottom: 1px solid #e0e0e0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .section-1 input {
+        padding: 8px;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      /* Section 2.1: Tabs */
+      .section-2-1 {
+        display: flex;
+        background: #fafafa;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        color: #666;
+        background: #f0f0f0;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+      }
+
+      .tab.active {
+        background: white;
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+
+      .tab:hover:not(.active) {
+        background: #e8e8e8;
+      }
+
+      .tab-content {
+        display: none;
+        padding: 12px;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Common sections */
+      .section-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+      }
+
+      .checkbox-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        background: #fafafa;
+        border-radius: 4px;
+        margin-bottom: 6px;
+        cursor: pointer;
+      }
+
+      .checkbox-option input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+
+      .checkbox-option label {
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 13px;
+      }
+
+      /* Role/Status container */
+      .role-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .role-container.with-relief,
+      .role-container.with-substitute {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .role-container select,
+      .role-container input {
+        padding: 8px;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+
+      #reliefInningEntry,
+      #substituteInningEntry {
+        display: none;
+      }
+
+      #reliefInningEntry.show,
+      #substituteInningEntry.show {
+        display: block;
+      }
+
+      #reliefInningEntry input,
+      #substituteInningEntry input {
+        width: 100%;
+      }
+
+      /* Pitch Types */
+      .pitch-types-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .pitch-type-btn {
+        padding: 8px 6px;
+        background: #f0f0f0;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+        text-align: center;
+      }
+
+      .pitch-type-btn:hover {
+        background: #e5e5e5;
+      }
+
+      .pitch-type-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .pitch-type-other {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px;
+      }
+
+      .pitch-type-other input {
+        flex: 1;
+        padding: 6px;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      /* Counters */
+      .counters-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .counter-wrapper {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 10px;
+      }
+
+      .counter-label {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        text-align: center;
+      }
+
+      .counter-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .counter-btn {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 50%;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.1s;
+      }
+
+      .counter-btn:active {
+        transform: scale(0.9);
+      }
+
+      .counter-btn.minus {
+        background: rgba(73, 65, 65, 0.3);
+      }
+
+      .counter-btn.plus {
+        background: rgba(73, 65, 65, 0.3);
+      }
+
+      .counter-display {
+        font-size: 24px;
+        font-weight: 700;
+        min-width: 40px;
+        text-align: center;
+      }
+
+      .strike-wrapper {
+        border-style: solid;
+        border-color: #4caf50;
+      }
+
+      .ball-wrapper {
+        border-style: solid;
+        border-color: #ffc107;
+      }
+
+      /* Batter Actions */
+      .batter-actions-hint {
+        padding: 8px;
+        background: #e3f2fd;
+        border-left: 3px solid #2196f3;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #1565c0;
+        font-style: italic;
+      }
+
+      .batter-actions-buttons {
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 6px;
+      }
+
+      .batter-actions-buttons.show {
+        display: grid;
+      }
+
+      .batter-action-btn {
+        padding: 8px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+
+      .batter-action-btn:hover {
+        background: #1976d2;
+      }
+
+      .batter-action-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* Wild Pitch & Balk */
+      .wp-balk-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .wp-balk-item {
+        border-style: solid;
+        border-color: #000000;
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 8px;
+      }
+
+      .wp-balk-label {
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        text-align: center;
+      }
+
+      .wp-balk-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .wp-balk-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        border-radius: 50%;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        background: rgba(73, 65, 65, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .wp-balk-display {
+        font-size: 20px;
+        font-weight: 700;
+        min-width: 30px;
+        text-align: center;
+      }
+
+      /* Ball in Play */
+      .ball-in-play-trigger {
+        width: 100%;
+        padding: 12px;
+        border-style: solid;
+        border-color: #f44336;
+        background: #f7f7f7;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .ball-in-play-trigger:hover {
+        background: #d32f2f;
+      }
+
+      .ball-in-play-trigger:active {
+        transform: scale(0.98);
+      }
+
+      .outcome-buttons {
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .outcome-buttons.show {
+        display: grid;
+      }
+
+      .outcome-btn {
+        padding: 8px;
+        background: #f7f7f7;
+        color: #000000;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 11px;
+        transition: all 0.2s;
+      }
+
+      .outcome-btn:hover {
+        background: #d32f2f;
+      }
+
+      .outcome-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* Hit type/location buttons */
+      .hit-type-buttons,
+      .hit-location-buttons {
+        display: none;
+        margin-top: 8px;
+      }
+
+      .hit-type-buttons.show,
+      .hit-location-buttons.show {
+        display: block;
+      }
+
+      .hit-type-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .hit-type-btn {
+        padding: 8px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 11px;
+      }
+
+      .hit-location-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 6px;
+        text-align: center;
+      }
+
+      .hit-location-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+      }
+
+      .hit-location-btn {
+        padding: 6px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 10px;
+      }
+
+      /* RISP indicator */
+      .risp-indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 8px;
+        background: #fff3e0;
+        border-left: 3px solid #ff9800;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        font-size: 12px;
+      }
+
+      .risp-indicator input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* Runs grid */
+      .runs-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .run-item {
+        border-radius: 6px;
+        padding: 8px;
+      }
+
+      .run-item.runs {
+        border-style: solid;
+        border-color: #ff5722;
+        background: #f8f9fa;
+      }
+
+      .run-item.earned-runs {
+        border-style: solid;
+        border-color: #795548;
+        background: #f8f9fa;
+      }
+
+      .run-label {
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        text-align: center;
+      }
+
+      .run-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .run-btn {
+        width: 28px;
+        height: 28px;
+        border: none;
+        border-radius: 50%;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        background: rgba(73, 65, 65, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .run-display {
+        font-size: 20px;
+        font-weight: 700;
+        min-width: 30px;
+        text-align: center;
+      }
+
+      /* Simple counter item (for PA, RBI, etc) */
+      .simple-counter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .simple-counter-item {
+        border-radius: 6px;
+        padding: 8px;
+        border-style: solid;
+        border-color: #607d8b;
+        background: #f8f9fa;
+      }
+
+      /* Stats */
+      .section-3 {
+        background: #fafafa;
+        padding: 12px;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .section-3-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .section-3-1 {
+        background: white;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      .stat-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .stat-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #667eea;
+      }
+
+      .section-3-2 {
+        display: none;
+        background: white;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+
+      .section-3-2.show {
+        display: block;
+      }
+
+      .section-3-2-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 8px;
+      }
+
+      .pitch-type-stat {
+        padding: 6px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        margin-bottom: 6px;
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      .pitch-type-stat strong {
+        color: #667eea;
+      }
+
+      .section-3-3 {
+        display: grid;
+        gap: 6px;
+      }
+
+      .export-btn {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .export-btn:hover {
+        background: #5568d3;
+      }
+
+      .reset-btn {
+        width: 100%;
+        padding: 12px;
+        background: #f44336;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .reset-btn:hover {
+        background: #d32f2f;
+      }
+
+      .json-output {
+        width: 100%;
+        height: 150px;
+        margin-top: 8px;
+        padding: 8px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        font-size: 10px;
+        display: none;
+        resize: vertical;
+      }
+
+      .json-output.show {
+        display: block;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Password Protection Screen -->
+    <div
+      id="passwordScreen"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #f5f5f5;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: white;
+          padding: 30px;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          max-width: 400px;
+          width: 90%;
+        "
+      >
+        <h2 style="text-align: center; color: #333; margin-bottom: 20px">
+          ⚾ Tracker Access
+        </h2>
+        <input
+          type="password"
+          id="passwordInput"
+          placeholder="Enter password"
+          style="
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 15px;
+          "
+        />
+        <button
+          onclick="checkPassword()"
+          style="
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+          "
+        >
+          Unlock
+        </button>
+        <div
+          id="passwordError"
+          style="
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+          "
+        >
+          Incorrect password
+        </div>
+      </div>
+    </div>
+
+    <div class="container" id="mainApp" style="display: none">
+      <div class="header">
+        <h1>PLAYMAKER TRACKER</h1>
+      </div>
+
+      <div class="section-1">
+        <input type="date" id="gameDate" />
+        <input type="text" id="opponent" placeholder="Opponent" />
+      </div>
+
+      <div class="section-2-1">
+        <div class="tab active" onclick="switchTab('pitching')">PITCHING</div>
+        <div class="tab" onclick="switchTab('batting')">BATTING</div>
+        <div class="tab" onclick="switchTab('fielding')">FIELDING</div>
+      </div>
+
+      <!-- PITCHING TAB -->
+      <div id="pitchingTab" class="tab-content active">
+        <div style="margin-bottom: 12px">
+          <div class="section-label">Role</div>
+          <div class="role-container" id="roleContainer">
+            <select id="pitchingRole" onchange="handleRoleChange()">
+              <option value="Starter">Starter</option>
+              <option value="Relief">Relief</option>
+            </select>
+            <div id="reliefInningEntry">
+              <input
+                type="number"
+                id="reliefInning"
+                placeholder="Inning entered (e.g., 2.1)"
+                step="0.1"
+                min="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="
+            padding: 8px;
+            background: #fff3e0;
+            border-left: 3px solid #ff9800;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #e65100;
+            margin-bottom: 12px;
+          "
+        >
+          ⚠️ <strong>Remember:</strong> Track any fielding plays made while
+          pitching in the <strong>Fielding</strong> tab!
+        </div>
+
+        <div style="margin-bottom: 12px">
+          <div
+            class="checkbox-option"
+            onclick="toggleCheckbox('trackPitchTypes')"
+          >
+            <input
+              type="checkbox"
+              id="trackPitchTypes"
+              onclick="
+                event.stopPropagation();
+                togglePitchTypes();
+              "
+            />
+            <label for="trackPitchTypes">Track pitch types</label>
+          </div>
+          <div
+            class="checkbox-option"
+            onclick="toggleCheckbox('trackBatterActions')"
+          >
+            <input
+              type="checkbox"
+              id="trackBatterActions"
+              onclick="
+                event.stopPropagation();
+                toggleBatterActions();
+              "
+            />
+            <label for="trackBatterActions"
+              >Track batter actions on strikes</label
+            >
+          </div>
+        </div>
+
+        <div class="hidden" id="pitchTypesSection">
+          <div class="section-label">Pitch Types</div>
+          <div class="pitch-types-grid">
+            <div class="pitch-type-btn" onclick="selectPitchType('FB')">FB</div>
+            <div class="pitch-type-btn" onclick="selectPitchType('CB')">CB</div>
+            <div class="pitch-type-btn" onclick="selectPitchType('SL')">SL</div>
+            <div class="pitch-type-btn" onclick="selectPitchType('CU')">CU</div>
+            <div
+              class="pitch-type-btn pitch-type-other"
+              onclick="selectPitchType('OTHER')"
+            >
+              OTHER:
+              <input
+                type="text"
+                id="otherPitchType"
+                placeholder="Type..."
+                onclick="event.stopPropagation()"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style="margin: 12px 0">
+          <div class="section-label">Count</div>
+          <div class="counters-grid">
+            <div class="counter-wrapper strike-wrapper">
+              <div class="counter-label">STRIKES</div>
+              <div class="counter-controls">
+                <div class="counter-btn minus" onclick="minusStrike()">−</div>
+                <div class="counter-display" id="strikeCounter">0</div>
+                <div class="counter-btn plus" onclick="plusStrike()">+</div>
+              </div>
+            </div>
+            <div class="counter-wrapper ball-wrapper">
+              <div class="counter-label">BALLS</div>
+              <div class="counter-controls">
+                <div class="counter-btn minus" onclick="minusBall()">−</div>
+                <div class="counter-display" id="ballCounter">0</div>
+                <div class="counter-btn plus" onclick="plusBall()">+</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hidden" id="batterActionsSection">
+          <div class="batter-actions-hint" id="batterActionsHint">
+            Batter actions will show when a strike is pressed
+          </div>
+          <div class="batter-actions-buttons" id="batterActionButtons">
+            <div
+              class="batter-action-btn"
+              onclick="recordBatterAction('swinging')"
+            >
+              Swinging
+            </div>
+            <div
+              class="batter-action-btn"
+              onclick="recordBatterAction('looking')"
+            >
+              Looking
+            </div>
+            <div class="batter-action-btn" onclick="recordBatterAction('foul')">
+              Foul
+            </div>
+          </div>
+        </div>
+
+        <div style="margin: 12px 0">
+          <div class="section-label">Additional Events</div>
+          <div class="wp-balk-grid">
+            <div class="wp-balk-item">
+              <div class="wp-balk-label">WILD PITCH</div>
+              <div class="wp-balk-controls">
+                <div
+                  class="wp-balk-btn"
+                  onclick="adjustPitchingStat('wildPitches', -1)"
+                >
+                  −
+                </div>
+                <div class="wp-balk-display" id="wildPitchDisplay">0</div>
+                <div
+                  class="wp-balk-btn"
+                  onclick="adjustPitchingStat('wildPitches', 1)"
+                >
+                  +
+                </div>
+              </div>
+            </div>
+            <div class="wp-balk-item">
+              <div class="wp-balk-label">BALK</div>
+              <div class="wp-balk-controls">
+                <div
+                  class="wp-balk-btn"
+                  onclick="adjustPitchingStat('balks', -1)"
+                >
+                  −
+                </div>
+                <div class="wp-balk-display" id="balkDisplay">0</div>
+                <div
+                  class="wp-balk-btn"
+                  onclick="adjustPitchingStat('balks', 1)"
+                >
+                  +
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin: 12px 0">
+          <div class="section-label">Velocity</div>
+          <div style="display: flex; gap: 10px; align-items: center">
+            <input
+              type="number"
+              id="velocityInput"
+              placeholder="MPH"
+              min="50"
+              max="110"
+              style="
+                flex: 1;
+                padding: 8px;
+                border: 1px solid #d0d0d0;
+                border-radius: 4px;
+                font-size: 13px;
+              "
+            />
+            <div
+              style="
+                padding: 8px 16px;
+                background: #667eea;
+                color: white;
+                border-radius: 4px;
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 13px;
+              "
+              onclick="addVelocity()"
+            >
+              ADD
+            </div>
+          </div>
+          <div
+            id="velocityList"
+            style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px"
+          ></div>
+        </div>
+
+        <div style="margin: 12px 0">
+          <div class="section-label">Ball in Play</div>
+          <div
+            class="ball-in-play-trigger"
+            onclick="showPitchingOutcomeButtons()"
+          >
+            BALL IN PLAY
+          </div>
+          <div class="outcome-buttons" id="pitchingOutcomeButtons">
+            <div class="outcome-btn" onclick="recordPitchingOutcome('out')">
+              OUT
+            </div>
+            <div class="outcome-btn" onclick="recordPitchingOutcome('single')">
+              SINGLE
+            </div>
+            <div class="outcome-btn" onclick="recordPitchingOutcome('double')">
+              DOUBLE
+            </div>
+            <div class="outcome-btn" onclick="recordPitchingOutcome('triple')">
+              TRIPLE
+            </div>
+            <div class="outcome-btn" onclick="recordPitchingOutcome('hr')">
+              HOME RUN
+            </div>
+            <div class="outcome-btn" onclick="recordPitchingOutcome('error')">
+              ERROR
+            </div>
+          </div>
+        </div>
+
+        <div style="margin: 12px 0">
+          <div class="section-label">Runs</div>
+          <div class="runs-grid">
+            <div class="run-item runs">
+              <div class="run-label">RUNS</div>
+              <div class="run-controls">
+                <div class="run-btn" onclick="adjustPitchingStat('runs', -1)">
+                  −
+                </div>
+                <div class="run-display" id="runsDisplay">0</div>
+                <div class="run-btn" onclick="adjustPitchingStat('runs', 1)">
+                  +
+                </div>
+              </div>
+            </div>
+            <div class="run-item earned-runs">
+              <div class="run-label">EARNED RUNS</div>
+              <div class="run-controls">
+                <div
+                  class="run-btn"
+                  onclick="adjustPitchingStat('earnedRuns', -1)"
+                >
+                  −
+                </div>
+                <div class="run-display" id="earnedRunsDisplay">0</div>
+                <div
+                  class="run-btn"
+                  onclick="adjustPitchingStat('earnedRuns', 1)"
+                >
+                  +
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BATTING TAB -->
+      <div id="battingTab" class="tab-content">
+        <div style="margin-bottom: 12px">
+          <div class="section-label">Status</div>
+          <div class="role-container" id="battingStatusContainer">
+            <select id="battingStatus" onchange="handleBattingStatusChange()">
+              <option value="Starting">Starting</option>
+              <option value="Substitute">Substitute</option>
+            </select>
+            <div id="substituteInningEntry">
+              <input
+                type="number"
+                id="substituteInning"
+                placeholder="Inning subbed"
+                min="1"
+                max="9"
+                step="1"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px">
+          <div
+            class="checkbox-option"
+            onclick="toggleCheckbox('trackBattingCount')"
+          >
+            <input
+              type="checkbox"
+              id="trackBattingCount"
+              onclick="
+                event.stopPropagation();
+                toggleBattingCount();
+              "
+            />
+            <label for="trackBattingCount">Track balls & strikes</label>
+          </div>
+          <div
+            class="checkbox-option"
+            onclick="toggleCheckbox('trackHitTypes')"
+          >
+            <input
+              type="checkbox"
+              id="trackHitTypes"
+              onclick="
+                event.stopPropagation();
+                toggleHitTypesHint();
+              "
+            />
+            <label for="trackHitTypes">Track hit types</label>
+          </div>
+          <div
+            class="hidden"
+            id="hitTypesHint"
+            style="
+              padding: 8px;
+              background: #e3f2fd;
+              border-left: 3px solid #2196f3;
+              border-radius: 4px;
+              font-size: 12px;
+              color: #1565c0;
+              font-style: italic;
+              margin-bottom: 8px;
+            "
+          >
+            Hit types (Fly/Ground/Line Drive) will show after selecting a hit
+            outcome
+          </div>
+          <div
+            class="checkbox-option"
+            onclick="toggleCheckbox('trackHitLocation')"
+          >
+            <input
+              type="checkbox"
+              id="trackHitLocation"
+              onclick="
+                event.stopPropagation();
+                toggleHitLocationHint();
+              "
+            />
+            <label for="trackHitLocation">Track hit location</label>
+          </div>
+          <div
+            class="hidden"
+            id="hitLocationHint"
+            style="
+              padding: 8px;
+              background: #e3f2fd;
+              border-left: 3px solid #2196f3;
+              border-radius: 4px;
+              font-size: 12px;
+              color: #1565c0;
+              font-style: italic;
+              margin-bottom: 8px;
+            "
+          >
+            Hit location options will show after selecting a hit outcome
+          </div>
+          <div
+            class="checkbox-option"
+            onclick="toggleCheckbox('trackStrikeoutType')"
+          >
+            <input
+              type="checkbox"
+              id="trackStrikeoutType"
+              onclick="
+                event.stopPropagation();
+                toggleStrikeoutTypeHint();
+              "
+            />
+            <label for="trackStrikeoutType"
+              >Track strikeout type (K-L vs K-S)</label
+            >
+          </div>
+          <div
+            class="hidden"
+            id="strikeoutTypeHint"
+            style="
+              padding: 8px;
+              background: #e3f2fd;
+              border-left: 3px solid #2196f3;
+              border-radius: 4px;
+              font-size: 12px;
+              color: #1565c0;
+              font-style: italic;
+              margin-bottom: 8px;
+            "
+          >
+            Strikeout type (Looking/Swinging) will show after a strikeout
+          </div>
+        </div>
+
+        <!-- RISP MOVED HERE - ABOVE PA -->
+        <div class="risp-indicator">
+          <input type="checkbox" id="runnersInScoring" />
+          <label
+            for="runnersInScoring"
+            style="font-weight: 600; cursor: pointer"
+            >Runners in scoring position</label
+          >
+        </div>
+
+        <div class="hidden" id="battingCountSection" style="margin: 12px 0">
+          <div class="section-label">Count (BATTING)</div>
+          <div class="counters-grid">
+            <div class="counter-wrapper strike-wrapper">
+              <div class="counter-label">STRIKES</div>
+              <div class="counter-controls">
+                <div class="counter-btn minus" onclick="minusBattingStrike()">
+                  −
+                </div>
+                <div class="counter-display" id="battingStrikeCounter">0</div>
+                <div class="counter-btn plus" onclick="plusBattingStrike()">
+                  +
+                </div>
+              </div>
+            </div>
+            <div class="counter-wrapper ball-wrapper">
+              <div class="counter-label">BALLS</div>
+              <div class="counter-controls">
+                <div class="counter-btn minus" onclick="minusBattingBall()">
+                  −
+                </div>
+                <div class="counter-display" id="battingBallCounter">0</div>
+                <div class="counter-btn plus" onclick="plusBattingBall()">
+                  +
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AT BAT OUTCOME - Shows when NOT tracking count, or on Strike 3 -->
+        <div id="atBatOutcomeSection" style="margin: 12px 0">
+          <div class="section-label">At Bat Outcome</div>
+          <div class="outcome-buttons show" style="display: flex">
+            <div class="outcome-btn" onclick="recordBattingOutcome('k')">
+              STRIKEOUT
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('bb')">
+              WALK
+            </div>
+            <div
+              class="outcome-btn"
+              onclick="recordBattingOutcome('d3k_reached')"
+            >
+              DROPPED 3RD K (REACHED)
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('d3k_out')">
+              DROPPED 3RD K (OUT)
+            </div>
+          </div>
+        </div>
+
+        <!-- STRIKE 3 OUTCOME - Only shows when tracking count AND at 3 strikes -->
+        <div class="hidden" id="strikeThreeOutcome" style="margin: 12px 0">
+          <div class="section-label">Strike 3 Outcome</div>
+          <div class="outcome-buttons show" style="display: grid">
+            <div class="outcome-btn" onclick="recordBattingOutcome('k')">
+              STRIKEOUT (OUT)
+            </div>
+            <div
+              class="outcome-btn"
+              onclick="recordBattingOutcome('d3k_reached')"
+            >
+              DROPPED 3RD K (REACHED)
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('d3k_out')">
+              DROPPED 3RD K (OUT)
+            </div>
+          </div>
+        </div>
+
+        <div class="hidden" id="strikeoutTypeButtons" style="margin-top: 8px">
+          <div class="hit-location-label">Strikeout Type:</div>
+          <div class="hit-type-grid">
+            <div class="hit-type-btn" onclick="recordStrikeoutType('looking')">
+              LOOKING
+            </div>
+            <div class="hit-type-btn" onclick="recordStrikeoutType('swinging')">
+              SWINGING
+            </div>
+          </div>
+        </div>
+
+        <!-- OTHER WAYS ON BASE -->
+        <div style="margin: 12px 0">
+          <div class="section-label">Other Ways on Base</div>
+          <div
+            class="outcome-buttons show"
+            style="display: grid; grid-template-columns: 1fr 1fr"
+          >
+            <div class="outcome-btn" onclick="recordBattingOutcome('hbp')">
+              HIT BY PITCH
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('ci')">
+              CATCHER'S INT
+            </div>
+          </div>
+        </div>
+
+        <!-- BALL IN PLAY (ONLY ACTUAL CONTACT) -->
+        <div style="margin: 12px 0">
+          <div class="section-label">Ball in Play</div>
+          <div
+            class="ball-in-play-trigger"
+            onclick="showBattingOutcomeButtons()"
+          >
+            BALL IN PLAY
+          </div>
+          <div class="outcome-buttons" id="battingOutcomeButtons">
+            <div class="outcome-btn" onclick="recordBattingOutcome('single')">
+              SINGLE
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('double')">
+              DOUBLE
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('triple')">
+              TRIPLE
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('hr')">
+              HOME RUN
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('iphr')">
+              IPHR
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('out')">
+              OUT
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('roe')">
+              REACH ON ERROR
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('fc')">
+              FIELDER'S CHOICE
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('sh')">
+              SAC BUNT
+            </div>
+            <div class="outcome-btn" onclick="recordBattingOutcome('sf')">
+              SAC FLY
+            </div>
+          </div>
+
+          <div class="hit-type-buttons" id="hitTypeButtons">
+            <div class="hit-location-label">Hit Type:</div>
+            <div class="hit-type-grid">
+              <div class="hit-type-btn" onclick="recordHitType('flyball')">
+                FLY BALL
+              </div>
+              <div class="hit-type-btn" onclick="recordHitType('groundball')">
+                GROUND BALL
+              </div>
+              <div class="hit-type-btn" onclick="recordHitType('linedrive')">
+                LINE DRIVE
+              </div>
+            </div>
+          </div>
+
+          <div class="hit-location-buttons" id="hitLocationButtons">
+            <div class="hit-location-label">Where was the ball hit?</div>
+            <div class="hit-location-grid">
+              <div class="hit-location-btn" onclick="recordHitLocation('P')">
+                P
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('C')">
+                C
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('1B')">
+                1B
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('2B')">
+                2B
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('3B')">
+                3B
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('SS')">
+                SS
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('LF')">
+                LF
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('CF')">
+                CF
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('RF')">
+                RF
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('LC')">
+                LC GAP
+              </div>
+              <div class="hit-location-btn" onclick="recordHitLocation('RC')">
+                RC GAP
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin: 12px 0">
+          <div class="section-label">Counters</div>
+          <div class="simple-counter-grid">
+            <div class="simple-counter-item">
+              <div class="run-label">RBI</div>
+              <div class="run-controls">
+                <div class="run-btn" onclick="adjustBattingStat('rbi', -1)">
+                  −
+                </div>
+                <div class="run-display" id="rbiDisplay">0</div>
+                <div class="run-btn" onclick="adjustBattingStat('rbi', 1)">
+                  +
+                </div>
+              </div>
+            </div>
+            <div class="simple-counter-item">
+              <div class="run-label">SB</div>
+              <div class="run-controls">
+                <div class="run-btn" onclick="adjustBattingStat('sb', -1)">
+                  −
+                </div>
+                <div class="run-display" id="sbDisplay">0</div>
+                <div class="run-btn" onclick="adjustBattingStat('sb', 1)">
+                  +
+                </div>
+              </div>
+            </div>
+            <div class="simple-counter-item">
+              <div class="run-label">CS</div>
+              <div class="run-controls">
+                <div class="run-btn" onclick="adjustBattingStat('cs', -1)">
+                  −
+                </div>
+                <div class="run-display" id="csDisplay">0</div>
+                <div class="run-btn" onclick="adjustBattingStat('cs', 1)">
+                  +
+                </div>
+              </div>
+            </div>
+            <div class="simple-counter-item">
+              <div class="run-label">PICKED OFF</div>
+              <div class="run-controls">
+                <div class="run-btn" onclick="adjustBattingStat('pik', -1)">
+                  −
+                </div>
+                <div class="run-display" id="pikDisplay">0</div>
+                <div class="run-btn" onclick="adjustBattingStat('pik', 1)">
+                  +
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIELDING TAB -->
+      <div id="fieldingTab" class="tab-content">
+        <div style="margin-bottom: 12px">
+          <button
+            onclick="addNewPosition()"
+            style="
+              width: 100%;
+              padding: 12px;
+              background: #4caf50;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-size: 14px;
+              font-weight: 600;
+              cursor: pointer;
+            "
+          >
+            + ADD POSITION
+          </button>
+        </div>
+
+        <!-- Position entries will be added here dynamically -->
+        <div id="positionEntriesContainer"></div>
+
+        <div
+          style="
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-style: italic;
+          "
+          id="noPositionsMessage"
+        >
+          Click "ADD POSITION" to start tracking fielding
+        </div>
+      </div>
+
+      <!-- SECTION 3: Stats -->
+      <div class="section-3">
+        <div class="section-3-title">📊 STATS</div>
+
+        <!-- Pitching Stats -->
+        <div class="section-3-1" id="pitchingStatsSection">
+          <div class="section-3-2-title">Pitching</div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">IP</div>
+              <div class="stat-value" id="ipStat">0.0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Pitches</div>
+              <div class="stat-value" id="pitchCountStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">K</div>
+              <div class="stat-value" id="kStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">BB</div>
+              <div class="stat-value" id="bbStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">H</div>
+              <div class="stat-value" id="hStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">R</div>
+              <div class="stat-value" id="rStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">ER</div>
+              <div class="stat-value" id="erStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">WP</div>
+              <div class="stat-value" id="wpStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Balks</div>
+              <div class="stat-value" id="balksStat">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batting Stats -->
+        <div class="section-3-1 hidden" id="battingStatsSection">
+          <div class="section-3-2-title">Batting</div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">PA</div>
+              <div class="stat-value" id="battingPAStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">AB</div>
+              <div class="stat-value" id="battingABStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">H</div>
+              <div class="stat-value" id="battingHStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">2B</div>
+              <div class="stat-value" id="batting2BStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">3B</div>
+              <div class="stat-value" id="batting3BStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">HR</div>
+              <div class="stat-value" id="battingHRStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">RBI</div>
+              <div class="stat-value" id="battingRBIStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">BB</div>
+              <div class="stat-value" id="battingBBStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">K</div>
+              <div class="stat-value" id="battingKStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">AVG</div>
+              <div class="stat-value" id="battingAVGStat">.000</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">OBP</div>
+              <div class="stat-value" id="battingOBPStat">.000</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">SLG</div>
+              <div class="stat-value" id="battingSLGStat">.000</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">OPS</div>
+              <div class="stat-value" id="battingOPSStat">.000</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">BABIP</div>
+              <div class="stat-value" id="battingBABIPStat">.000</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">TB</div>
+              <div class="stat-value" id="battingTBStat">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fielding Stats -->
+        <div class="section-3-1 hidden" id="fieldingStatsSection">
+          <div class="section-3-2-title">Fielding</div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">TC</div>
+              <div class="stat-value" id="fieldingTCStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">PO</div>
+              <div class="stat-value" id="fieldingPOStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">A</div>
+              <div class="stat-value" id="fieldingAStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">E</div>
+              <div class="stat-value" id="fieldingEStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">FPCT</div>
+              <div class="stat-value" id="fieldingFPCTStat">.000</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">DP</div>
+              <div class="stat-value" id="fieldingDPStat">0</div>
+            </div>
+          </div>
+
+          <!-- Catcher-specific stats display -->
+          <div class="hidden" id="catcherStatsDisplay" style="margin-top: 10px">
+            <div
+              class="section-3-2-title"
+              style="font-size: 12px; margin-top: 10px"
+            >
+              Catcher Stats
+            </div>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-label">PB</div>
+                <div class="stat-value" id="fieldingPBStat">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">SB Allowed</div>
+                <div class="stat-value" id="fieldingSBStat">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">CS</div>
+                <div class="stat-value" id="fieldingCSStat">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">TO%</div>
+                <div class="stat-value" id="fieldingTOPctStat">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">Picks</div>
+                <div class="stat-value" id="fieldingPicksStat">0/0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pitch Type Stats -->
+        <div class="section-3-2" id="pitchTypeStatsSection">
+          <div class="section-3-2-title">Pitch Type Analysis</div>
+          <div id="pitchTypeStatsContent">
+            <div class="pitch-type-stat">No pitch data yet</div>
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div class="section-3-3">
+          <div class="export-btn" onclick="exportData()">EXPORT DATA</div>
+          <div class="reset-btn" onclick="resetAll()">RESET ALL DATA</div>
+          <textarea id="jsonOutput" class="json-output" readonly></textarea>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Set today's date
+      document.getElementById('gameDate').valueAsDate = new Date();
+
+      // Game state
+      let gameState = {
+        // PITCHING DATA
+        pitching: {
+          strikeCounter: 0,
+          ballCounter: 0,
+          previousState: { strikes: 0, balls: 0 },
+          stats: {
+            ip: 0,
+            outs: 0,
+            pitchCount: 0,
+            strikeouts: 0,
+            walks: 0,
+            hits: 0,
+            runs: 0,
+            earnedRuns: 0,
+            wildPitches: 0,
+            balks: 0,
+          },
+          currentPitchType: null,
+          pitches: [],
+          velocities: [],
+          pendingBatterAction: false,
+        },
+
+        // BATTING DATA
+        batting: {
+          strikeCounter: 0,
+          ballCounter: 0,
+          previousBallState: null,
+          stats: {
+            pa: 0,
+            ab: 0,
+            h: 0,
+            singles: 0,
+            doubles: 0,
+            triples: 0,
+            hr: 0,
+            iphr: 0,
+            rbi: 0,
+            bb: 0,
+            hbp: 0,
+            k: 0,
+            kLooking: 0,
+            kSwinging: 0,
+            sb: 0,
+            cs: 0,
+            pik: 0,
+            sf: 0,
+            sh: 0,
+            roe: 0,
+            fc: 0,
+            rbi_risp: 0,
+            ab_risp: 0,
+            h_risp: 0,
+          },
+          plateAppearances: [],
+          currentPA: null,
+          pendingStrikeoutType: false,
+        },
+        // FIELDING DATA
+        fielding: {
+          positions: [], // Array of position entries
+        },
+      };
+
+      // ==========================================
+      // TAB SWITCHING
+      // ==========================================
+
+      function switchTab(tab) {
+        document
+          .querySelectorAll('.tab')
+          .forEach((t) => t.classList.remove('active'));
+        document
+          .querySelectorAll('.tab-content')
+          .forEach((c) => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+
+        // Show/hide stats based on active tab
+        const pitchingStats = document.getElementById('pitchingStatsSection');
+        const battingStats = document.getElementById('battingStatsSection');
+        const fieldingStats = document.getElementById('fieldingStatsSection');
+        const pitchTypeStats = document.getElementById('pitchTypeStatsSection');
+
+        if (tab === 'pitching') {
+          pitchingStats.style.display = 'block';
+          pitchTypeStats.style.display = 'block';
+          battingStats.style.display = 'none';
+          fieldingStats.style.display = 'none';
+        } else if (tab === 'batting') {
+          pitchingStats.style.display = 'none';
+          pitchTypeStats.style.display = 'none';
+          battingStats.style.display = 'block';
+          fieldingStats.style.display = 'none';
+        } else if (tab === 'fielding') {
+          pitchingStats.style.display = 'none';
+          pitchTypeStats.style.display = 'none';
+          battingStats.style.display = 'none';
+          fieldingStats.style.display = 'block';
+        }
+      }
+
+      // ==========================================
+      // PITCHING FUNCTIONS (UNCHANGED)
+      // ==========================================
+
+      function handleRoleChange() {
+        const role = document.getElementById('pitchingRole').value;
+        const reliefEntry = document.getElementById('reliefInningEntry');
+        const container = document.getElementById('roleContainer');
+
+        if (role === 'Relief') {
+          container.classList.add('with-relief');
+          reliefEntry.classList.add('show');
+        } else {
+          container.classList.remove('with-relief');
+          reliefEntry.classList.remove('show');
+        }
+      }
+
+      function togglePitchTypes() {
+        const checked = document.getElementById('trackPitchTypes').checked;
+        const section = document.getElementById('pitchTypesSection');
+        const statsSection = document.getElementById('pitchTypeStatsSection');
+
+        if (checked) {
+          section.classList.remove('hidden');
+          statsSection.classList.add('show');
+        } else {
+          section.classList.add('hidden');
+          statsSection.classList.remove('show');
+          gameState.pitching.currentPitchType = null;
+          document
+            .querySelectorAll('.pitch-type-btn')
+            .forEach((btn) => btn.classList.remove('active'));
+        }
+      }
+
+      function toggleBatterActions() {
+        const checked = document.getElementById('trackBatterActions').checked;
+        const section = document.getElementById('batterActionsSection');
+
+        if (checked) {
+          section.classList.remove('hidden');
+        } else {
+          section.classList.add('hidden');
+          hideBatterActionButtons();
+        }
+      }
+
+      function selectPitchType(type) {
+        document
+          .querySelectorAll('.pitch-type-btn')
+          .forEach((btn) => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        if (type === 'OTHER') {
+          const input = document.getElementById('otherPitchType');
+          gameState.pitching.currentPitchType = input.value.trim() || 'OTHER';
+        } else {
+          gameState.pitching.currentPitchType = type;
+        }
+      }
+
+      function plusStrike() {
+        const trackBatterActions =
+          document.getElementById('trackBatterActions').checked;
+
+        if (trackBatterActions) {
+          showBatterActionButtons();
+          gameState.pitching.pendingBatterAction = true;
+        } else {
+          recordStrike(null);
+        }
+      }
+
+      function recordStrike(batterAction) {
+        gameState.pitching.previousState = {
+          strikes: gameState.pitching.strikeCounter,
+          balls: gameState.pitching.ballCounter,
+        };
+
+        if (batterAction === 'foul' && gameState.pitching.strikeCounter >= 2) {
+          gameState.pitching.stats.pitchCount++;
+          recordPitch('strike', batterAction);
+        } else {
+          gameState.pitching.strikeCounter++;
+          gameState.pitching.stats.pitchCount++;
+          recordPitch('strike', batterAction);
+
+          if (
+            gameState.pitching.strikeCounter >= 3 &&
+            (batterAction === 'swinging' ||
+              batterAction === 'looking' ||
+              batterAction === null)
+          ) {
+            gameState.pitching.stats.strikeouts++;
+            gameState.pitching.stats.outs++;
+            resetPitchingCounters();
+          }
+        }
+
+        updatePitchingDisplay();
+      }
+
+      function minusStrike() {
+        if (gameState.pitching.strikeCounter > 0) {
+          gameState.pitching.strikeCounter--;
+          gameState.pitching.stats.pitchCount = Math.max(
+            0,
+            gameState.pitching.stats.pitchCount - 1
+          );
+        } else if (
+          gameState.pitching.strikeCounter === 0 &&
+          gameState.pitching.previousState.strikes > 0
+        ) {
+          gameState.pitching.strikeCounter =
+            gameState.pitching.previousState.strikes;
+          gameState.pitching.ballCounter =
+            gameState.pitching.previousState.balls;
+
+          if (gameState.pitching.stats.strikeouts > 0) {
+            gameState.pitching.stats.strikeouts--;
+            gameState.pitching.stats.outs = Math.max(
+              0,
+              gameState.pitching.stats.outs - 1
+            );
+          }
+
+          gameState.pitching.stats.pitchCount = Math.max(
+            0,
+            gameState.pitching.stats.pitchCount - 1
+          );
+        }
+
+        updatePitchingDisplay();
+      }
+
+      function plusBall() {
+        gameState.pitching.previousState = {
+          strikes: gameState.pitching.strikeCounter,
+          balls: gameState.pitching.ballCounter,
+        };
+
+        gameState.pitching.ballCounter++;
+        gameState.pitching.stats.pitchCount++;
+        recordPitch('ball', null);
+
+        if (gameState.pitching.ballCounter >= 4) {
+          gameState.pitching.stats.walks++;
+          resetPitchingCounters();
+        }
+
+        updatePitchingDisplay();
+      }
+
+      function minusBall() {
+        if (gameState.pitching.ballCounter > 0) {
+          gameState.pitching.ballCounter--;
+          gameState.pitching.stats.pitchCount = Math.max(
+            0,
+            gameState.pitching.stats.pitchCount - 1
+          );
+        } else if (
+          gameState.pitching.ballCounter === 0 &&
+          gameState.pitching.previousState.balls > 0
+        ) {
+          gameState.pitching.strikeCounter =
+            gameState.pitching.previousState.strikes;
+          gameState.pitching.ballCounter =
+            gameState.pitching.previousState.balls;
+
+          if (gameState.pitching.stats.walks > 0) {
+            gameState.pitching.stats.walks--;
+          }
+
+          gameState.pitching.stats.pitchCount = Math.max(
+            0,
+            gameState.pitching.stats.pitchCount - 1
+          );
+        }
+
+        updatePitchingDisplay();
+      }
+
+      function showBatterActionButtons() {
+        document.getElementById('batterActionsHint').style.display = 'none';
+        document.getElementById('batterActionButtons').classList.add('show');
+      }
+
+      function hideBatterActionButtons() {
+        document.getElementById('batterActionsHint').style.display = 'block';
+        document.getElementById('batterActionButtons').classList.remove('show');
+      }
+
+      function recordBatterAction(action) {
+        recordStrike(action);
+        hideBatterActionButtons();
+        gameState.pitching.pendingBatterAction = false;
+      }
+
+      function showPitchingOutcomeButtons() {
+        document.getElementById('pitchingOutcomeButtons').classList.add('show');
+      }
+
+      function recordPitchingOutcome(outcome) {
+        gameState.pitching.previousState = {
+          strikes: gameState.pitching.strikeCounter,
+          balls: gameState.pitching.ballCounter,
+        };
+
+        gameState.pitching.stats.pitchCount++;
+        recordPitch('ballInPlay', outcome);
+
+        if (outcome === 'out') {
+          gameState.pitching.stats.outs++;
+        } else if (outcome !== 'error') {
+          gameState.pitching.stats.hits++;
+
+          if (outcome === 'hr') {
+            gameState.pitching.stats.runs++;
+            gameState.pitching.stats.earnedRuns++;
+          }
+        }
+
+        resetPitchingCounters();
+        document
+          .getElementById('pitchingOutcomeButtons')
+          .classList.remove('show');
+
+        updatePitchingDisplay();
+      }
+
+      function adjustPitchingStat(stat, delta) {
+        gameState.pitching.stats[stat] = Math.max(
+          0,
+          gameState.pitching.stats[stat] + delta
+        );
+        updatePitchingDisplay();
+      }
+
+      function recordPitch(type, detail) {
+        const trackPitchTypes =
+          document.getElementById('trackPitchTypes').checked;
+
+        gameState.pitching.pitches.push({
+          type: trackPitchTypes ? gameState.pitching.currentPitchType : null,
+          outcome: type,
+          detail: detail,
+          timestamp: new Date().toISOString(),
+        });
+
+        updatePitchTypeStats();
+      }
+
+      function resetPitchingCounters() {
+        gameState.pitching.strikeCounter = 0;
+        gameState.pitching.ballCounter = 0;
+      }
+
+      function addVelocity() {
+        const veloInput = document.getElementById('velocityInput');
+        const velo = parseInt(veloInput.value);
+
+        if (velo && velo >= 50 && velo <= 110) {
+          gameState.pitching.velocities.push(velo);
+
+          const chip = document.createElement('div');
+          chip.style.cssText =
+            'background: #e3f2fd; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #1976d2;';
+          chip.textContent = velo + ' MPH';
+          document.getElementById('velocityList').appendChild(chip);
+
+          veloInput.value = '';
+        } else {
+          alert('Please enter a velocity between 50-110 MPH');
+        }
+      }
+
+      function updatePitchingDisplay() {
+        document.getElementById('strikeCounter').textContent =
+          gameState.pitching.strikeCounter;
+        document.getElementById('ballCounter').textContent =
+          gameState.pitching.ballCounter;
+        document.getElementById('wildPitchDisplay').textContent =
+          gameState.pitching.stats.wildPitches;
+        document.getElementById('balkDisplay').textContent =
+          gameState.pitching.stats.balks;
+        document.getElementById('runsDisplay').textContent =
+          gameState.pitching.stats.runs;
+        document.getElementById('earnedRunsDisplay').textContent =
+          gameState.pitching.stats.earnedRuns;
+
+        const wholeInnings = Math.floor(gameState.pitching.stats.outs / 3);
+        const partialOuts = gameState.pitching.stats.outs % 3;
+        const ip = wholeInnings + partialOuts / 10;
+
+        document.getElementById('ipStat').textContent = ip.toFixed(1);
+        document.getElementById('pitchCountStat').textContent =
+          gameState.pitching.stats.pitchCount;
+        document.getElementById('kStat').textContent =
+          gameState.pitching.stats.strikeouts;
+        document.getElementById('bbStat').textContent =
+          gameState.pitching.stats.walks;
+        document.getElementById('hStat').textContent =
+          gameState.pitching.stats.hits;
+        document.getElementById('rStat').textContent =
+          gameState.pitching.stats.runs;
+        document.getElementById('erStat').textContent =
+          gameState.pitching.stats.earnedRuns;
+        document.getElementById('wpStat').textContent =
+          gameState.pitching.stats.wildPitches;
+        document.getElementById('balksStat').textContent =
+          gameState.pitching.stats.balks;
+      }
+
+      function updatePitchTypeStats() {
+        const trackPitchTypes =
+          document.getElementById('trackPitchTypes').checked;
+        if (!trackPitchTypes) return;
+
+        const pitchTypes = {};
+
+        gameState.pitching.pitches.forEach((pitch) => {
+          if (pitch.type) {
+            if (!pitchTypes[pitch.type]) {
+              pitchTypes[pitch.type] = { total: 0, strikes: 0, balls: 0 };
+            }
+
+            pitchTypes[pitch.type].total++;
+
+            if (pitch.outcome === 'strike' || pitch.outcome === 'ballInPlay') {
+              pitchTypes[pitch.type].strikes++;
+            } else if (pitch.outcome === 'ball') {
+              pitchTypes[pitch.type].balls++;
+            }
+          }
+        });
+
+        let html = '';
+        for (const [type, stats] of Object.entries(pitchTypes)) {
+          const strikePct =
+            stats.total > 0
+              ? ((stats.strikes / stats.total) * 100).toFixed(0)
+              : 0;
+          html += `<div class="pitch-type-stat">
+                    <strong>${type}:</strong> ${stats.total} (${stats.strikes} strikes, ${stats.balls} balls) - ${strikePct}% strikes
+                </div>`;
+        }
+
+        document.getElementById('pitchTypeStatsContent').innerHTML =
+          html || '<div class="pitch-type-stat">No pitch data yet</div>';
+      }
+
+      // ==========================================
+      // BATTING FUNCTIONS
+      // ==========================================
+
+      function handleBattingStatusChange() {
+        const status = document.getElementById('battingStatus').value;
+        const substituteEntry = document.getElementById(
+          'substituteInningEntry'
+        );
+        const container = document.getElementById('battingStatusContainer');
+
+        if (status === 'Substitute') {
+          container.classList.add('with-substitute');
+          substituteEntry.classList.add('show');
+        } else {
+          container.classList.remove('with-substitute');
+          substituteEntry.classList.remove('show');
+        }
+      }
+
+      // Add input validation for substitute inning
+      document
+        .getElementById('substituteInning')
+        .addEventListener('input', function (e) {
+          // Remove any decimal points
+          this.value = this.value.replace(/\./g, '');
+          // Ensure it's between 1-9
+          if (this.value > 9) this.value = 9;
+          if (this.value < 1 && this.value !== '') this.value = 1;
+        });
+
+      function toggleBattingCount() {
+        const checked = document.getElementById('trackBattingCount').checked;
+        const countSection = document.getElementById('battingCountSection');
+        const atBatSection = document.getElementById('atBatOutcomeSection');
+
+        if (checked) {
+          // Show count, hide manual at-bat buttons
+          countSection.classList.remove('hidden');
+          atBatSection.classList.add('hidden');
+        } else {
+          // Hide count, show manual at-bat buttons
+          countSection.classList.add('hidden');
+          atBatSection.classList.remove('hidden');
+        }
+      }
+
+      function toggleHitTypesHint() {
+        const checked = document.getElementById('trackHitTypes').checked;
+        const hint = document.getElementById('hitTypesHint');
+
+        if (checked) {
+          hint.classList.remove('hidden');
+        } else {
+          hint.classList.add('hidden');
+        }
+      }
+
+      function toggleHitLocationHint() {
+        const checked = document.getElementById('trackHitLocation').checked;
+        const hint = document.getElementById('hitLocationHint');
+
+        if (checked) {
+          hint.classList.remove('hidden');
+        } else {
+          hint.classList.add('hidden');
+        }
+      }
+
+      function toggleStrikeoutTypeHint() {
+        const checked = document.getElementById('trackStrikeoutType').checked;
+        const hint = document.getElementById('strikeoutTypeHint');
+
+        if (checked) {
+          hint.classList.remove('hidden');
+        } else {
+          hint.classList.add('hidden');
+        }
+      }
+
+      function plusBattingStrike() {
+        gameState.batting.strikeCounter++;
+
+        // Show strike 3 outcome buttons
+        if (gameState.batting.strikeCounter >= 3) {
+          const trackCount =
+            document.getElementById('trackBattingCount').checked;
+          if (trackCount) {
+            document
+              .getElementById('strikeThreeOutcome')
+              .classList.remove('hidden');
+          }
+        }
+
+        updateBattingDisplay();
+      }
+
+      function minusBattingStrike() {
+        if (gameState.batting.strikeCounter > 0) {
+          gameState.batting.strikeCounter--;
+        }
+        updateBattingDisplay();
+      }
+
+      function plusBattingBall() {
+        // Save state before ball
+        gameState.batting.previousBallState = {
+          strikes: gameState.batting.strikeCounter,
+          balls: gameState.batting.ballCounter,
+          bb: gameState.batting.stats.bb,
+        };
+
+        gameState.batting.ballCounter++;
+
+        // Auto-walk on 4 balls
+        if (gameState.batting.ballCounter >= 4) {
+          gameState.batting.stats.bb++;
+          gameState.batting.stats.pa++;
+          gameState.batting.strikeCounter = 0;
+          gameState.batting.ballCounter = 0;
+
+          // Complete PA automatically
+          const risp = document.getElementById('runnersInScoring').checked;
+          gameState.batting.plateAppearances.push({
+            outcome: 'bb',
+            risp: risp,
+            strikes: 3,
+            balls: 4,
+            hitType: null,
+            hitLocation: null,
+            strikeoutType: null,
+          });
+
+          document.getElementById('runnersInScoring').checked = false;
+        }
+
+        updateBattingDisplay();
+      }
+
+      function minusBattingBall() {
+        if (gameState.batting.ballCounter > 0) {
+          gameState.batting.ballCounter--;
+        } else if (
+          gameState.batting.ballCounter === 0 &&
+          gameState.batting.previousBallState
+        ) {
+          // Undo the walk
+          gameState.batting.strikeCounter =
+            gameState.batting.previousBallState.strikes;
+          gameState.batting.ballCounter =
+            gameState.batting.previousBallState.balls;
+          gameState.batting.stats.bb = gameState.batting.previousBallState.bb;
+
+          // Remove last PA if it was a walk
+          if (gameState.batting.plateAppearances.length > 0) {
+            const lastPA =
+              gameState.batting.plateAppearances[
+                gameState.batting.plateAppearances.length - 1
+              ];
+            if (lastPA.outcome === 'bb') {
+              gameState.batting.plateAppearances.pop();
+            }
+          }
+        }
+        updateBattingDisplay();
+      }
+
+      function adjustBattingStat(stat, delta) {
+        gameState.batting.stats[stat] = Math.max(
+          0,
+          gameState.batting.stats[stat] + delta
+        );
+        updateBattingDisplay();
+      }
+
+      function showBattingOutcomeButtons() {
+        document.getElementById('battingOutcomeButtons').classList.add('show');
+      }
+
+      function recordBattingOutcome(outcome) {
+        // Auto-increment PA for every outcome
+        gameState.batting.stats.pa++;
+        const risp = document.getElementById('runnersInScoring').checked;
+
+        // Start new PA record
+        gameState.batting.currentPA = {
+          outcome: outcome,
+          risp: risp,
+          strikes: gameState.batting.strikeCounter,
+          balls: gameState.batting.ballCounter,
+          hitType: null,
+          hitLocation: null,
+          strikeoutType: null,
+        };
+
+        // Process outcome
+        const trackHitTypes = document.getElementById('trackHitTypes').checked;
+        const trackHitLocation =
+          document.getElementById('trackHitLocation').checked;
+        const trackStrikeoutType =
+          document.getElementById('trackStrikeoutType').checked;
+
+        let countsAsAB = true;
+        let isHit = false;
+
+        switch (outcome) {
+          case 'single':
+            gameState.batting.stats.singles++;
+            gameState.batting.stats.h++;
+            isHit = true;
+            if (risp) gameState.batting.stats.h_risp++;
+            break;
+
+          case 'double':
+            gameState.batting.stats.doubles++;
+            gameState.batting.stats.h++;
+            isHit = true;
+            if (risp) gameState.batting.stats.h_risp++;
+            break;
+
+          case 'triple':
+            gameState.batting.stats.triples++;
+            gameState.batting.stats.h++;
+            isHit = true;
+            if (risp) gameState.batting.stats.h_risp++;
+            break;
+
+          case 'hr':
+            gameState.batting.stats.hr++;
+            gameState.batting.stats.h++;
+            isHit = true;
+            if (risp) gameState.batting.stats.h_risp++;
+            break;
+
+          case 'iphr':
+            gameState.batting.stats.iphr++;
+            gameState.batting.stats.hr++;
+            gameState.batting.stats.h++;
+            isHit = true;
+            if (risp) gameState.batting.stats.h_risp++;
+            break;
+
+          case 'out':
+            // Regular out - counts as AB
+            break;
+
+          case 'k':
+            gameState.batting.stats.k++;
+            if (trackStrikeoutType) {
+              showStrikeoutTypeButtons();
+              return; // Wait for strikeout type selection
+            }
+            break;
+
+          case 'bb':
+            gameState.batting.stats.bb++;
+            countsAsAB = false;
+            break;
+
+          case 'hbp':
+            gameState.batting.stats.hbp++;
+            countsAsAB = false;
+            break;
+
+          case 'roe':
+            gameState.batting.stats.roe++;
+            // Counts as AB but not a hit
+            break;
+
+          case 'd3k_reached':
+            gameState.batting.stats.k++;
+            // Counts as AB and K, but reached base
+            break;
+
+          case 'd3k_out':
+            gameState.batting.stats.k++;
+            // Counts as AB and K, still out
+            break;
+
+          case 'fc':
+            gameState.batting.stats.fc++;
+            // Counts as AB but not a hit
+            break;
+
+          case 'sh':
+            gameState.batting.stats.sh++;
+            countsAsAB = false;
+            break;
+
+          case 'sf':
+            gameState.batting.stats.sf++;
+            countsAsAB = false;
+            break;
+
+          case 'ci':
+            countsAsAB = false;
+            // Just counts as PA
+            break;
+        }
+
+        // Update AB count
+        if (countsAsAB) {
+          gameState.batting.stats.ab++;
+          if (risp) gameState.batting.stats.ab_risp++;
+        }
+
+        // Show conditional buttons for hits
+        if (isHit && (trackHitTypes || trackHitLocation)) {
+          if (trackHitTypes) {
+            document.getElementById('hitTypeButtons').classList.add('show');
+          }
+          if (trackHitLocation) {
+            document.getElementById('hitLocationButtons').classList.add('show');
+          }
+          return; // Wait for hit type/location selection
+        }
+
+        // Complete the PA
+        completeBattingPA();
+      }
+
+      function recordHitType(type) {
+        if (gameState.batting.currentPA) {
+          gameState.batting.currentPA.hitType = type;
+        }
+
+        document.getElementById('hitTypeButtons').classList.remove('show');
+
+        // Check if we're waiting for location too
+        const trackHitLocation =
+          document.getElementById('trackHitLocation').checked;
+        if (!trackHitLocation || gameState.batting.currentPA.hitLocation) {
+          completeBattingPA();
+        }
+      }
+
+      function recordHitLocation(location) {
+        if (gameState.batting.currentPA) {
+          gameState.batting.currentPA.hitLocation = location;
+        }
+
+        document.getElementById('hitLocationButtons').classList.remove('show');
+
+        // Check if we're waiting for type too
+        const trackHitTypes = document.getElementById('trackHitTypes').checked;
+        if (!trackHitTypes || gameState.batting.currentPA.hitType) {
+          completeBattingPA();
+        }
+      }
+
+      function showStrikeoutTypeButtons() {
+        document
+          .getElementById('strikeoutTypeButtons')
+          .classList.remove('hidden');
+      }
+
+      function recordStrikeoutType(type) {
+        if (gameState.batting.currentPA) {
+          gameState.batting.currentPA.strikeoutType = type;
+
+          if (type === 'looking') {
+            gameState.batting.stats.kLooking++;
+          } else if (type === 'swinging') {
+            gameState.batting.stats.kSwinging++;
+          }
+        }
+
+        document.getElementById('strikeoutTypeButtons').classList.add('hidden');
+        completeBattingPA();
+      }
+
+      function completeBattingPA() {
+        // Save PA to history
+        if (gameState.batting.currentPA) {
+          gameState.batting.plateAppearances.push(gameState.batting.currentPA);
+          gameState.batting.currentPA = null;
+        }
+
+        // Reset counters and UI
+        gameState.batting.strikeCounter = 0;
+        gameState.batting.ballCounter = 0;
+        document.getElementById('strikeThreeOutcome').classList.add('hidden');
+        document.getElementById('runnersInScoring').checked = false;
+        document
+          .getElementById('battingOutcomeButtons')
+          .classList.remove('show');
+        document.getElementById('hitTypeButtons').classList.remove('show');
+        document.getElementById('hitLocationButtons').classList.remove('show');
+
+        updateBattingDisplay();
+      }
+
+      function updateBattingDisplay() {
+        // Update counters
+        document.getElementById('battingStrikeCounter').textContent =
+          gameState.batting.strikeCounter;
+        document.getElementById('battingBallCounter').textContent =
+          gameState.batting.ballCounter;
+        document.getElementById('rbiDisplay').textContent =
+          gameState.batting.stats.rbi;
+        document.getElementById('sbDisplay').textContent =
+          gameState.batting.stats.sb;
+        document.getElementById('csDisplay').textContent =
+          gameState.batting.stats.cs;
+        document.getElementById('pikDisplay').textContent =
+          gameState.batting.stats.pik;
+
+        // Update stats
+        const stats = gameState.batting.stats;
+
+        document.getElementById('battingPAStat').textContent = stats.pa;
+        document.getElementById('battingABStat').textContent = stats.ab;
+        document.getElementById('battingHStat').textContent = stats.h;
+        document.getElementById('batting2BStat').textContent = stats.doubles;
+        document.getElementById('batting3BStat').textContent = stats.triples;
+        document.getElementById('battingHRStat').textContent = stats.hr;
+        document.getElementById('battingRBIStat').textContent = stats.rbi;
+        document.getElementById('battingBBStat').textContent = stats.bb;
+        document.getElementById('battingKStat').textContent = stats.k;
+
+        // Calculate advanced stats
+        const avg = stats.ab > 0 ? stats.h / stats.ab : 0;
+        const obp =
+          stats.ab + stats.bb + stats.hbp > 0
+            ? (stats.h + stats.bb + stats.hbp) /
+              (stats.ab + stats.bb + stats.hbp + stats.sf)
+            : 0;
+
+        const tb =
+          stats.singles + 2 * stats.doubles + 3 * stats.triples + 4 * stats.hr;
+        const slg = stats.ab > 0 ? tb / stats.ab : 0;
+        const ops = obp + slg;
+
+        // BABIP = (H - HR) / (AB - K - HR + SF)
+        const babip =
+          stats.ab - stats.k - stats.hr + stats.sf > 0
+            ? (stats.h - stats.hr) / (stats.ab - stats.k - stats.hr + stats.sf)
+            : 0;
+
+        document.getElementById('battingAVGStat').textContent = avg.toFixed(3);
+        document.getElementById('battingOBPStat').textContent = obp.toFixed(3);
+        document.getElementById('battingSLGStat').textContent = slg.toFixed(3);
+        document.getElementById('battingOPSStat').textContent = ops.toFixed(3);
+        document.getElementById('battingBABIPStat').textContent =
+          babip.toFixed(3);
+        document.getElementById('battingTBStat').textContent = tb;
+      }
+
+      // ==========================================
+      // FIELDING FUNCTIONS
+      // ==========================================
+
+      let positionIdCounter = 0;
+
+      function addNewPosition() {
+        positionIdCounter++;
+        const positionId = `pos_${positionIdCounter}`;
+
+        // Create new position entry
+        const positionEntry = {
+          id: positionId,
+          position: null,
+          innings: 0,
+          stats: {
+            tc: 0,
+            po: 0,
+            a: 0,
+            e: 0,
+            dp: 0,
+            tp: 0,
+            pb: 0,
+            sb_allowed: 0,
+            cs_by_catcher: 0,
+            pick_attempts: 0,
+            picks: 0,
+            ci: 0,
+          },
+        };
+
+        // Add to beginning of array (newest on top)
+        gameState.fielding.positions.unshift(positionEntry);
+
+        // Hide "no positions" message
+        document.getElementById('noPositionsMessage').style.display = 'none';
+
+        // Render the position entry
+        renderPositionEntry(positionEntry, 0);
+      }
+
+      function renderPositionEntry(positionEntry, index) {
+        const container = document.getElementById('positionEntriesContainer');
+        const posId = positionEntry.id;
+
+        const html = `
+                <div class="position-entry" id="${posId}" style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 12px; border: 2px solid #e0e0e0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="font-weight: 700; color: #667eea;">Position Entry #${gameState.fielding.positions.length - index}</div>
+                        <button onclick="removePosition('${posId}')" style="background: #f44336; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600;">REMOVE</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div class="section-label">Position</div>
+                        <select id="${posId}_position" onchange="handleFieldingPositionChange('${posId}')" style="width: 100%; padding: 8px; border: 1px solid #d0d0d0; border-radius: 4px; font-size: 13px;">
+                            <option value="">Select Position</option>
+                            <option value="P">Pitcher (P)</option>
+                            <option value="C">Catcher (C)</option>
+                            <option value="1B">First Base (1B)</option>
+                            <option value="2B">Second Base (2B)</option>
+                            <option value="3B">Third Base (3B)</option>
+                            <option value="SS">Shortstop (SS)</option>
+                            <option value="LF">Left Field (LF)</option>
+                            <option value="CF">Center Field (CF)</option>
+                            <option value="RF">Right Field (RF)</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div class="section-label">Innings at Position</div>
+                        <select id="${posId}_innings" style="width: 100%; padding: 8px; border: 1px solid #d0d0d0; border-radius: 4px; font-size: 13px;">
+                            <option value="0.1">0.1</option>
+                            <option value="0.2">0.2</option>
+                            <option value="1.0">1.0</option>
+                            <option value="1.1">1.1</option>
+                            <option value="1.2">1.2</option>
+                            <option value="2.0">2.0</option>
+                            <option value="2.1">2.1</option>
+                            <option value="2.2">2.2</option>
+                            <option value="3.0">3.0</option>
+                            <option value="3.1">3.1</option>
+                            <option value="3.2">3.2</option>
+                            <option value="4.0">4.0</option>
+                            <option value="4.1">4.1</option>
+                            <option value="4.2">4.2</option>
+                            <option value="5.0">5.0</option>
+                            <option value="5.1">5.1</option>
+                            <option value="5.2">5.2</option>
+                            <option value="6.0">6.0</option>
+                            <option value="6.1">6.1</option>
+                            <option value="6.2">6.2</option>
+                            <option value="7.0">7.0</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin: 12px 0;">
+                        <div class="section-label">Fielding Counters</div>
+                        <div class="simple-counter-grid">
+                            <div class="simple-counter-item">
+                                <div class="run-label">TC</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'tc', -1)">−</div>
+                                    <div class="run-display" id="${posId}_tc">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'tc', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item" style="position: relative;">
+                                <div class="run-label">
+                                    PO
+                                    <span style="cursor: help; margin-left: 4px; font-size: 10px;" title="Fielder who records the out">ⓘ</span>
+                                </div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'po', -1)">−</div>
+                                    <div class="run-display" id="${posId}_po">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'po', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item" style="position: relative;">
+                                <div class="run-label">
+                                    A
+                                    <span style="cursor: help; margin-left: 4px; font-size: 10px;" title="Fielder who throws to another for out">ⓘ</span>
+                                </div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'a', -1)">−</div>
+                                    <div class="run-display" id="${posId}_a">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'a', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item">
+                                <div class="run-label">E</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'e', -1)">−</div>
+                                    <div class="run-display" id="${posId}_e">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'e', 1)">+</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 12px 0;">
+                        <div class="section-label">Special Plays</div>
+                        <div class="simple-counter-grid">
+                            <div class="simple-counter-item">
+                                <div class="run-label">DP</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'dp', -1)">−</div>
+                                    <div class="run-display" id="${posId}_dp">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'dp', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item">
+                                <div class="run-label">TP</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'tp', -1)">−</div>
+                                    <div class="run-display" id="${posId}_tp">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'tp', 1)">+</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CATCHER-SPECIFIC STATS -->
+                    <div class="hidden" id="${posId}_catcherStats" style="margin: 12px 0;">
+                        <div class="section-label">Catcher-Specific Stats</div>
+                        <div class="simple-counter-grid">
+                            <div class="simple-counter-item">
+                                <div class="run-label">PB</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'pb', -1)">−</div>
+                                    <div class="run-display" id="${posId}_pb">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'pb', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item">
+                                <div class="run-label">SB</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'sb_allowed', -1)">−</div>
+                                    <div class="run-display" id="${posId}_sb_allowed">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'sb_allowed', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item">
+                                <div class="run-label">CS</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'cs_by_catcher', -1)">−</div>
+                                    <div class="run-display" id="${posId}_cs_by_catcher">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'cs_by_catcher', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item">
+                                <div class="run-label">PICK ATT</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'pick_attempts', -1)">−</div>
+                                    <div class="run-display" id="${posId}_pick_attempts">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'pick_attempts', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item">
+                                <div class="run-label">PICKS</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'picks', -1)">−</div>
+                                    <div class="run-display" id="${posId}_picks">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'picks', 1)">+</div>
+                                </div>
+                            </div>
+                            <div class="simple-counter-item">
+                                <div class="run-label">CI</div>
+                                <div class="run-controls">
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'ci', -1)">−</div>
+                                    <div class="run-display" id="${posId}_ci">0</div>
+                                    <div class="run-btn" onclick="adjustFieldingStat('${posId}', 'ci', 1)">+</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        // Insert at the beginning
+        container.insertAdjacentHTML('afterbegin', html);
+      }
+
+      function handleFieldingPositionChange(posId) {
+        const position = document.getElementById(`${posId}_position`).value;
+        const catcherSection = document.getElementById(`${posId}_catcherStats`);
+
+        // Update in gameState
+        const posEntry = gameState.fielding.positions.find(
+          (p) => p.id === posId
+        );
+        if (posEntry) {
+          posEntry.position = position;
+        }
+
+        // Show/hide catcher stats
+        if (position === 'C') {
+          catcherSection.classList.remove('hidden');
+        } else {
+          catcherSection.classList.add('hidden');
+        }
+      }
+
+      function adjustFieldingStat(posId, stat, delta) {
+        const posEntry = gameState.fielding.positions.find(
+          (p) => p.id === posId
+        );
+        if (posEntry) {
+          posEntry.stats[stat] = Math.max(0, posEntry.stats[stat] + delta);
+          document.getElementById(`${posId}_${stat}`).textContent =
+            posEntry.stats[stat];
+        }
+
+        updateFieldingStatsDisplay();
+      }
+
+      function removePosition(posId) {
+        if (!confirm('Remove this position entry?')) return;
+
+        // Remove from gameState
+        gameState.fielding.positions = gameState.fielding.positions.filter(
+          (p) => p.id !== posId
+        );
+
+        // Remove from DOM
+        document.getElementById(posId).remove();
+
+        // Show "no positions" message if empty
+        if (gameState.fielding.positions.length === 0) {
+          document.getElementById('noPositionsMessage').style.display = 'block';
+        }
+
+        updateFieldingStatsDisplay();
+      }
+
+      function updateFieldingStatsDisplay() {
+        // Aggregate all position stats
+        let totalTC = 0,
+          totalPO = 0,
+          totalA = 0,
+          totalE = 0,
+          totalDP = 0,
+          totalTP = 0;
+        let totalPB = 0,
+          totalSB = 0,
+          totalCS = 0,
+          totalPicks = 0,
+          totalPickAttempts = 0;
+
+        gameState.fielding.positions.forEach((pos) => {
+          totalTC += pos.stats.tc;
+          totalPO += pos.stats.po;
+          totalA += pos.stats.a;
+          totalE += pos.stats.e;
+          totalDP += pos.stats.dp;
+          totalTP += pos.stats.tp;
+          totalPB += pos.stats.pb;
+          totalSB += pos.stats.sb_allowed;
+          totalCS += pos.stats.cs_by_catcher;
+          totalPicks += pos.stats.picks;
+          totalPickAttempts += pos.stats.pick_attempts;
+        });
+
+        const fpct = totalTC > 0 ? (totalPO + totalA) / totalTC : 0;
+        const throwoutPct =
+          totalSB + totalCS > 0 ? (totalCS / (totalSB + totalCS)) * 100 : 0;
+
+        document.getElementById('fieldingTCStat').textContent = totalTC;
+        document.getElementById('fieldingPOStat').textContent = totalPO;
+        document.getElementById('fieldingAStat').textContent = totalA;
+        document.getElementById('fieldingEStat').textContent = totalE;
+        document.getElementById('fieldingFPCTStat').textContent =
+          fpct.toFixed(3);
+        document.getElementById('fieldingDPStat').textContent = totalDP;
+
+        // Catcher stats (show if any position is catcher)
+        const hasCatcher = gameState.fielding.positions.some(
+          (p) => p.position === 'C'
+        );
+        if (hasCatcher) {
+          document
+            .getElementById('catcherStatsDisplay')
+            .classList.remove('hidden');
+          document.getElementById('fieldingPBStat').textContent = totalPB;
+          document.getElementById('fieldingSBStat').textContent = totalSB;
+          document.getElementById('fieldingCSStat').textContent = totalCS;
+          document.getElementById('fieldingTOPctStat').textContent =
+            throwoutPct.toFixed(1) + '%';
+          document.getElementById('fieldingPicksStat').textContent =
+            totalPicks + '/' + totalPickAttempts;
+        } else {
+          document
+            .getElementById('catcherStatsDisplay')
+            .classList.add('hidden');
+        }
+      }
+
+      // ==========================================
+      // EXPORT FUNCTION
+      // ==========================================
+
+      function exportData() {
+        const date = document.getElementById('gameDate').value;
+        const opponent = document.getElementById('opponent').value;
+
+        if (!opponent) {
+          alert('Please enter opponent name');
+          return;
+        }
+
+        const exportData = {
+          date: date,
+          opponent: opponent,
+        };
+
+        // Add pitching data if tracked
+        if (
+          gameState.pitching.stats.outs > 0 ||
+          gameState.pitching.stats.strikeouts > 0
+        ) {
+          const role = document.getElementById('pitchingRole').value;
+          const reliefInning =
+            role === 'Relief'
+              ? parseFloat(document.getElementById('reliefInning').value) ||
+                null
+              : null;
+
+          const wholeInnings = Math.floor(gameState.pitching.stats.outs / 3);
+          const partialOuts = gameState.pitching.stats.outs % 3;
+          const ip = wholeInnings + partialOuts / 10;
+
+          exportData.pitching = {
+            role: role,
+            relief_inning: reliefInning,
+            ip: ip,
+            h: gameState.pitching.stats.hits,
+            r: gameState.pitching.stats.runs,
+            er: gameState.pitching.stats.earnedRuns,
+            bb: gameState.pitching.stats.walks,
+            k: gameState.pitching.stats.strikeouts,
+            hr: 0,
+            pitches: gameState.pitching.stats.pitchCount,
+            wp: gameState.pitching.stats.wildPitches,
+            balks: gameState.pitching.stats.balks,
+            detailed_pitches: gameState.pitching.pitches,
+            fb_velo:
+              gameState.pitching.velocities.length > 0
+                ? Math.round(
+                    gameState.pitching.velocities.reduce((a, b) => a + b, 0) /
+                      gameState.pitching.velocities.length
+                  )
+                : 0,
+            velocities: gameState.pitching.velocities,
+          };
+        }
+
+        // Add batting data if tracked
+        if (gameState.batting.stats.pa > 0) {
+          const status = document.getElementById('battingStatus').value;
+          const substituteInning =
+            status === 'Substitute'
+              ? parseInt(document.getElementById('substituteInning').value) ||
+                null
+              : null;
+
+          const stats = gameState.batting.stats;
+          const tb =
+            stats.singles +
+            2 * stats.doubles +
+            3 * stats.triples +
+            4 * stats.hr;
+
+          exportData.batting = {
+            status: status,
+            substitute_inning: substituteInning,
+            pa: stats.pa,
+            ab: stats.ab,
+            h: stats.h,
+            '1b': stats.singles,
+            '2b': stats.doubles,
+            '3b': stats.triples,
+            hr: stats.hr,
+            iphr: stats.iphr,
+            rbi: stats.rbi,
+            bb: stats.bb,
+            hbp: stats.hbp,
+            k: stats.k,
+            k_looking: stats.kLooking,
+            k_swinging: stats.kSwinging,
+            sb: stats.sb,
+            cs: stats.cs,
+            pik: stats.pik,
+            sf: stats.sf,
+            sh: stats.sh,
+            tb: tb,
+            roe: stats.roe,
+            fc: stats.fc,
+            ab_risp: stats.ab_risp,
+            h_risp: stats.h_risp,
+            rbi_risp: stats.rbi_risp,
+            plate_appearances: gameState.batting.plateAppearances,
+          };
+        }
+
+        // Add fielding data if tracked
+        if (gameState.fielding.positions.length > 0) {
+          exportData.fielding = [];
+
+          gameState.fielding.positions.forEach((posEntry) => {
+            const position = document.getElementById(
+              `${posEntry.id}_position`
+            ).value;
+            const innings =
+              parseFloat(
+                document.getElementById(`${posEntry.id}_innings`).value
+              ) || 0;
+
+            const fieldingData = {
+              position: position,
+              innings: innings,
+              tc: posEntry.stats.tc,
+              po: posEntry.stats.po,
+              a: posEntry.stats.a,
+              e: posEntry.stats.e,
+              dp: posEntry.stats.dp,
+              tp: posEntry.stats.tp,
+            };
+
+            // Add catcher-specific stats if catcher
+            if (position === 'C') {
+              fieldingData.pb = posEntry.stats.pb;
+              fieldingData.sb_allowed = posEntry.stats.sb_allowed;
+              fieldingData.cs_by_catcher = posEntry.stats.cs_by_catcher;
+              fieldingData.pick_attempts = posEntry.stats.pick_attempts;
+              fieldingData.picks = posEntry.stats.picks;
+              fieldingData.ci = posEntry.stats.ci;
+            }
+
+            exportData.fielding.push(fieldingData);
+          });
+        }
+
+        const jsonOutput = JSON.stringify(exportData, null, 2);
+        document.getElementById('jsonOutput').value = jsonOutput;
+        document.getElementById('jsonOutput').classList.add('show');
+
+        // Download file
+        const blob = new Blob([jsonOutput], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `game_${opponent.replace(/\s+/g, '_')}_${date}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        alert('JSON file downloaded! Import into your Python system.');
+      }
+
+      // ==========================================
+      // RESET FUNCTION
+      // ==========================================
+
+      function resetAll() {
+        if (
+          !confirm(
+            'Are you sure you want to reset ALL data? This cannot be undone!'
+          )
+        ) {
+          return;
+        }
+
+        // Reset pitching
+        gameState.pitching = {
+          strikeCounter: 0,
+          ballCounter: 0,
+          previousState: { strikes: 0, balls: 0 },
+          stats: {
+            ip: 0,
+            outs: 0,
+            pitchCount: 0,
+            strikeouts: 0,
+            walks: 0,
+            hits: 0,
+            runs: 0,
+            earnedRuns: 0,
+            wildPitches: 0,
+            balks: 0,
+          },
+          currentPitchType: null,
+          pitches: [],
+          velocities: [],
+          pendingBatterAction: false,
+        };
+
+        // Reset batting
+        gameState.batting = {
+          strikeCounter: 0,
+          ballCounter: 0,
+          stats: {
+            pa: 0,
+            ab: 0,
+            h: 0,
+            singles: 0,
+            doubles: 0,
+            triples: 0,
+            hr: 0,
+            iphr: 0,
+            rbi: 0,
+            bb: 0,
+            hbp: 0,
+            k: 0,
+            kLooking: 0,
+            kSwinging: 0,
+            sb: 0,
+            cs: 0,
+            pik: 0,
+            sf: 0,
+            sh: 0,
+            roe: 0,
+            fc: 0,
+            rbi_risp: 0,
+            ab_risp: 0,
+            h_risp: 0,
+          },
+          plateAppearances: [],
+          currentPA: null,
+          pendingStrikeoutType: false,
+        };
+
+        // Reset fielding
+        gameState.fielding = {
+          positions: [],
+        };
+
+        positionIdCounter = 0;
+        document.getElementById('positionEntriesContainer').innerHTML = '';
+        document.getElementById('noPositionsMessage').style.display = 'block';
+
+        updateFieldingStatsDisplay();
+
+        // Reset UI
+        document.getElementById('gameDate').valueAsDate = new Date();
+        document.getElementById('opponent').value = '';
+        document.getElementById('jsonOutput').classList.remove('show');
+        document
+          .getElementById('pitchingOutcomeButtons')
+          .classList.remove('show');
+        document
+          .getElementById('battingOutcomeButtons')
+          .classList.remove('show');
+        document.getElementById('velocityList').innerHTML = '';
+        document.getElementById('velocityInput').value = '';
+        document.getElementById('runnersInScoring').checked = false;
+
+        hideBatterActionButtons();
+
+        updatePitchingDisplay();
+        updateBattingDisplay();
+        updatePitchTypeStats();
+
+        alert('All data reset!');
+      }
+    </script>
+
+    <script>
+      // Password Protection
+      const CORRECT_PASSWORD = 'B3arCatZ';
+
+      function checkPassword() {
+        const input = document.getElementById('passwordInput').value;
+        if (input === CORRECT_PASSWORD) {
+          localStorage.setItem('trackerAuth', 'true');
+          document.getElementById('passwordScreen').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'block';
+        } else {
+          document.getElementById('passwordError').style.display = 'block';
+          document.getElementById('passwordInput').value = '';
+        }
+      }
+
+      // Check on page load
+      window.addEventListener('DOMContentLoaded', function () {
+        if (localStorage.getItem('trackerAuth') === 'true') {
+          document.getElementById('passwordScreen').style.display = 'none';
+          document.getElementById('mainApp').style.display = 'block';
+        } else {
+          document.getElementById('passwordScreen').style.display = 'flex';
+          document.getElementById('mainApp').style.display = 'none';
+        }
+      });
+
+      // Allow Enter key to submit password
+      document.addEventListener('DOMContentLoaded', function () {
+        document
+          .getElementById('passwordInput')
+          ?.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkPassword();
+          });
+      });
+    </script>
+  </body>
+</html>
