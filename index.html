@@ -1780,6 +1780,63 @@
         },
       };
 
+      // Auto-save to localStorage
+      function saveGameState() {
+        localStorage.setItem('currentGame', JSON.stringify(gameState));
+      }
+
+      // Load from localStorage
+      function loadGameState() {
+        const saved = localStorage.getItem('currentGame');
+        if (saved) {
+          gameState = JSON.parse(saved);
+
+          // Restore all UI elements
+          updatePitchingDisplay();
+          updateBattingDisplay();
+          updatePitchTypeStats();
+          updateFieldingStatsDisplay();
+
+          // Restore velocities display
+          document.getElementById('velocityList').innerHTML = '';
+          gameState.pitching.velocities.forEach((velo) => {
+            const chip = document.createElement('div');
+            chip.style.cssText =
+              'background: #e3f2fd; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #1976d2;';
+            chip.textContent = velo + ' MPH';
+            document.getElementById('velocityList').appendChild(chip);
+          });
+
+          // Restore fielding positions
+          document.getElementById('positionEntriesContainer').innerHTML = '';
+          if (gameState.fielding.positions.length > 0) {
+            document.getElementById('noPositionsMessage').style.display =
+              'none';
+            gameState.fielding.positions.forEach((pos, index) => {
+              renderPositionEntry(pos, index);
+              // Restore the values
+              document.getElementById(`${pos.id}_position`).value =
+                pos.position || '';
+              if (pos.position === 'C') {
+                document
+                  .getElementById(`${pos.id}_catcherStats`)
+                  .classList.remove('hidden');
+              }
+              // Restore all counter displays
+              Object.keys(pos.stats).forEach((stat) => {
+                const elem = document.getElementById(`${pos.id}_${stat}`);
+                if (elem) elem.textContent = pos.stats[stat];
+              });
+            });
+          }
+        }
+      }
+
+      // Clear saved game
+      function clearSavedGame() {
+        localStorage.removeItem('currentGame');
+      }
+
       // ==========================================
       // TAB SWITCHING
       // ==========================================
@@ -1878,6 +1935,7 @@
         } else {
           gameState.pitching.currentPitchType = type;
         }
+        saveGameState();
       }
 
       function plusStrike() {
@@ -1919,6 +1977,7 @@
         }
 
         updatePitchingDisplay();
+        saveGameState();
       }
 
       function minusStrike() {
@@ -1952,6 +2011,7 @@
         }
 
         updatePitchingDisplay();
+        saveGameState();
       }
 
       function plusBall() {
@@ -1970,6 +2030,7 @@
         }
 
         updatePitchingDisplay();
+        saveGameState();
       }
 
       function minusBall() {
@@ -1999,6 +2060,7 @@
         }
 
         updatePitchingDisplay();
+        saveGameState();
       }
 
       function showBatterActionButtons() {
@@ -2047,6 +2109,7 @@
           .classList.remove('show');
 
         updatePitchingDisplay();
+        saveGameState();
       }
 
       function adjustPitchingStat(stat, delta) {
@@ -2055,6 +2118,7 @@
           gameState.pitching.stats[stat] + delta
         );
         updatePitchingDisplay();
+        saveGameState();
       }
 
       function recordPitch(type, detail) {
@@ -2090,6 +2154,7 @@
           document.getElementById('velocityList').appendChild(chip);
 
           veloInput.value = '';
+          saveGameState();
         } else {
           alert('Please enter a velocity between 50-110 MPH');
         }
@@ -2265,6 +2330,7 @@
         }
 
         updateBattingDisplay();
+        saveGameState();
       }
 
       function minusBattingStrike() {
@@ -2272,6 +2338,7 @@
           gameState.batting.strikeCounter--;
         }
         updateBattingDisplay();
+        saveGameState();
       }
 
       function plusBattingBall() {
@@ -2307,6 +2374,7 @@
         }
 
         updateBattingDisplay();
+        saveGameState();
       }
 
       function minusBattingBall() {
@@ -2335,6 +2403,7 @@
           }
         }
         updateBattingDisplay();
+        saveGameState();
       }
 
       function adjustBattingStat(stat, delta) {
@@ -2343,6 +2412,7 @@
           gameState.batting.stats[stat] + delta
         );
         updateBattingDisplay();
+        saveGameState();
       }
 
       function showBattingOutcomeButtons() {
@@ -2489,6 +2559,7 @@
 
         // Complete the PA
         completeBattingPA();
+        saveGameState();
       }
 
       function recordHitType(type) {
@@ -2504,6 +2575,7 @@
         if (!trackHitLocation || gameState.batting.currentPA.hitLocation) {
           completeBattingPA();
         }
+        saveGameState();
       }
 
       function recordHitLocation(location) {
@@ -2518,6 +2590,7 @@
         if (!trackHitTypes || gameState.batting.currentPA.hitType) {
           completeBattingPA();
         }
+        saveGameState();
       }
 
       function showStrikeoutTypeButtons() {
@@ -2539,6 +2612,7 @@
 
         document.getElementById('strikeoutTypeButtons').classList.add('hidden');
         completeBattingPA();
+        saveGameState();
       }
 
       function completeBattingPA() {
@@ -2560,6 +2634,7 @@
         document.getElementById('hitLocationButtons').classList.remove('show');
 
         updateBattingDisplay();
+        saveGameState();
       }
 
       function updateBattingDisplay() {
@@ -2657,6 +2732,7 @@
 
         // Render the position entry
         renderPositionEntry(positionEntry, 0);
+        saveGameState();
       }
 
       function renderPositionEntry(positionEntry, index) {
@@ -2858,6 +2934,7 @@
         } else {
           catcherSection.classList.add('hidden');
         }
+        saveGameState();
       }
 
       function adjustFieldingStat(posId, stat, delta) {
@@ -2871,6 +2948,7 @@
         }
 
         updateFieldingStatsDisplay();
+        saveGameState();
       }
 
       function removePosition(posId) {
@@ -2890,6 +2968,7 @@
         }
 
         updateFieldingStatsDisplay();
+        saveGameState();
       }
 
       function updateFieldingStatsDisplay() {
@@ -3112,6 +3191,7 @@
         a.click();
         URL.revokeObjectURL(url);
 
+        clearSavedGame();
         alert('JSON file downloaded! Import into your Python system.');
       }
 
@@ -3217,6 +3297,7 @@
         updateBattingDisplay();
         updatePitchTypeStats();
 
+        clearSavedGame();
         alert('All data reset!');
       }
     </script>
@@ -3242,6 +3323,7 @@
         if (localStorage.getItem('trackerAuth') === 'true') {
           document.getElementById('passwordScreen').style.display = 'none';
           document.getElementById('mainApp').style.display = 'block';
+          loadGameState()
         } else {
           document.getElementById('passwordScreen').style.display = 'flex';
           document.getElementById('mainApp').style.display = 'none';
