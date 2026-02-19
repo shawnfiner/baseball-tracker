@@ -939,6 +939,16 @@
                 <div class="event-btn" onclick="adjustEvent('balks', 1)">+</div>
               </div>
             </div>
+            <div class="event-item">
+              <div class="event-label">PICKOFFS</div>
+              <div class="event-controls">
+                <div class="event-btn" onclick="minusPickoff()">−</div>
+                <div class="event-display" id="pickoffDisplay">0</div>
+                <div class="event-btn" onclick="adjustEvent('pickoffs', 1)">
+                  +
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1323,6 +1333,10 @@
             <div class="stat-item">
               <div class="stat-label">Balks</div>
               <div class="stat-value" id="balksStat">0</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Pickoffs</div>
+              <div class="stat-value" id="pickoffsStat">0</div>
             </div>
           </div>
         </div>
@@ -2175,6 +2189,7 @@
             earnedRuns: 0,
             wildPitches: 0,
             balks: 0,
+            pickoffs: 0,
           },
           velocities: [],
           actions: [], // Track all actions for history
@@ -2595,6 +2610,32 @@
         // Find the most recent balk action
         for (let i = gameState.pitching.actions.length - 1; i >= 0; i--) {
           if (gameState.pitching.actions[i].type === 'balks') {
+            // Remove this action
+            gameState.pitching.actions.splice(i, 1);
+
+            // Recalculate everything
+            recalculateCurrentCount();
+            recalculateStatsFromActions();
+            updatePitchingDisplay();
+            updatePitchTypeStats();
+            saveGameState();
+
+            // Hide action history button if no actions left
+            if (gameState.pitching.actions.length === 0) {
+              document
+                .getElementById('actionHistoryBtn')
+                .classList.add('hidden');
+            }
+
+            return;
+          }
+        }
+      }
+
+      function minusPickoff() {
+        // Find the most recent pickoff action
+        for (let i = gameState.pitching.actions.length - 1; i >= 0; i--) {
+          if (gameState.pitching.actions[i].type === 'pickoffs') {
             // Remove this action
             gameState.pitching.actions.splice(i, 1);
 
@@ -3115,6 +3156,8 @@
             typeText = 'Wild Pitch + Ball';
           } else if (action.type === 'balks') {
             typeText = 'Balk';
+          } else if (action.type === 'pickoffs') {
+            typeText = 'Pickoff';
           } else if (action.type === 'runs') {
             typeText = 'Run';
           } else if (action.type === 'earnedRuns') {
@@ -3941,6 +3984,7 @@
           earnedRuns: 0,
           wildPitches: 0,
           balks: 0,
+          pickoffs: 0,
         };
         gameState.pitching.velocities = [];
 
@@ -3991,6 +4035,10 @@
 
           if (action.type === 'balks') {
             gameState.pitching.stats.balks++;
+          }
+
+          if (action.type === 'pickoffs') {
+            gameState.pitching.stats.pickoffs++;
           }
 
           if (action.type === 'runs') {
@@ -4065,6 +4113,8 @@
           gameState.pitching.stats.wildPitches;
         document.getElementById('balkDisplay').textContent =
           gameState.pitching.stats.balks;
+        document.getElementById('pickoffDisplay').textContent =
+          gameState.pitching.stats.pickoffs;
         document.getElementById('runsDisplay').textContent =
           gameState.pitching.stats.runs;
         document.getElementById('earnedRunsDisplay').textContent =
@@ -4091,6 +4141,8 @@
           gameState.pitching.stats.wildPitches;
         document.getElementById('balksStat').textContent =
           gameState.pitching.stats.balks;
+        document.getElementById('pickoffsStat').textContent =
+          gameState.pitching.stats.pickoffs;
       }
 
       function updatePitchTypeStats() {
@@ -6015,6 +6067,7 @@
           fb_velo: avgVelo,
           wp: gameState.pitching.stats.wildPitches,
           balks: gameState.pitching.stats.balks,
+          pickoffs: gameState.pitching.stats.pickoffs,
         };
 
         // Add relief inning if applicable
